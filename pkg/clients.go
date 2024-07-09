@@ -4,13 +4,25 @@ import (
 	"errors"
 	"log"
 	"reservation_service/config"
-	pb "reservation_service/genproto/payment"
+	pbp "reservation_service/genproto/payment"
+	pbu "reservation_service/genproto/user"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func CreatePaymentClient(cfg config.Config) pb.PaymentClient {
+func CreateUserClient(cfg config.Config) pbu.UserClient {
+	conn, err := grpc.NewClient(cfg.Server.USER_PORT,
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Println(errors.New("failed to connect to the address: " + err.Error()))
+		return nil
+	}
+
+	return pbu.NewUserClient(conn)
+}
+
+func CreatePaymentClient(cfg config.Config) pbp.PaymentClient {
 	conn, err := grpc.NewClient(cfg.Server.PAYMENT_PORT,
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -18,5 +30,5 @@ func CreatePaymentClient(cfg config.Config) pb.PaymentClient {
 		return nil
 	}
 
-	return pb.NewPaymentClient(conn)
+	return pbp.NewPaymentClient(conn)
 }
