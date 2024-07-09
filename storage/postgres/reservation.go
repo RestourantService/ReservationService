@@ -2,10 +2,19 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	pb "reservation_service/genproto/reservation"
 )
+
+type ReservationRepo struct {
+	DB *sql.DB
+}
+
+func NewReservationRepo(db *sql.DB) *ReservationRepo {
+	return &ReservationRepo{DB: db}
+}
 
 func (r *ReservationRepo) CreateReservation(ctx context.Context, reser *pb.ReservationDetails) (*pb.ID, error) {
 	query := `
@@ -153,5 +162,23 @@ func (r *ReservationRepo) FetchReservations(ctx context.Context, f *pb.Filter) (
 		count++
 	}
 
-	
+	rows, err := r.DB.QueryContext(ctx, query, params...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var reservations []*pb.ReservationInfo
+	for rows.Next() {
+		var reser pb.ReservationInfo
+
+		err := rows.Scan(&reser.Id, &reser.UserId, &reser.RestaurantId, &reser.ReservationTime, &reser.Status)
+		if err != nil {
+			return nil, err
+		}
+
+		reservations = append(reservations, &reser)
+	}
+
+	return &pb.Reservations{Reservations: reservations}, nil
 }

@@ -3,19 +3,20 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	pb "reservation_service/genproto/restaurant"
 )
 
-type ReservationRepo struct {
+type RestaurantRepo struct {
 	DB *sql.DB
 }
 
-func NewReservationRepo(db *sql.DB) *ReservationRepo {
-	return &ReservationRepo{DB: db}
+func NewRestaurantRepo(db *sql.DB) *RestaurantRepo {
+	return &RestaurantRepo{DB: db}
 }
 
-func (r *ReservationRepo) CreateRestaurant(ctx context.Context, res *pb.RestaurantDetails) (*pb.ID, error) {
+func (r *RestaurantRepo) CreateRestaurant(ctx context.Context, res *pb.RestaurantDetails) (*pb.ID, error) {
 	query := `
 				INSERT INTO restaurants (name, address, phone_number, description)
                 VALUES ($1, $2, $3, $4)
@@ -31,7 +32,7 @@ func (r *ReservationRepo) CreateRestaurant(ctx context.Context, res *pb.Restaura
 	return &id, nil
 }
 
-func (r *ReservationRepo) GetRestaurant(ctx context.Context, id *pb.ID) (*pb.RestaurantInfo, error) {
+func (r *RestaurantRepo) GetRestaurant(ctx context.Context, id *pb.ID) (*pb.RestaurantInfo, error) {
 	res := pb.RestaurantInfo{Id: id.Id}
 	query := `
                 SELECT name, address, phone_number, description
@@ -47,7 +48,7 @@ func (r *ReservationRepo) GetRestaurant(ctx context.Context, id *pb.ID) (*pb.Res
 	return &res, nil
 }
 
-func (r *ReservationRepo) UpdateRestaurant(ctx context.Context, res *pb.RestaurantInfo) error {
+func (r *RestaurantRepo) UpdateRestaurant(ctx context.Context, res *pb.RestaurantInfo) error {
 	query := `
                 UPDATE restaurants
                 SET name = $1, address = $2, phone_number = $3, description = $4 updated_at = NOW()
@@ -62,7 +63,7 @@ func (r *ReservationRepo) UpdateRestaurant(ctx context.Context, res *pb.Restaura
 	return nil
 }
 
-func (r *ReservationRepo) DeleteRestaurant(ctx context.Context, id *pb.ID) error {
+func (r *RestaurantRepo) DeleteRestaurant(ctx context.Context, id *pb.ID) error {
 	query := `
 			UPDATE restaurants
 			SET deleted_at = NOW()
@@ -76,15 +77,26 @@ func (r *ReservationRepo) DeleteRestaurant(ctx context.Context, id *pb.ID) error
 	return nil
 }
 
-func (r *ReservationRepo) FetchRestaurants(ctx context.Context, pag *pb.Pagination) ([]*pb.RestaurantInfo, error) {
+func (r *RestaurantRepo) FetchRestaurants(ctx context.Context, pag *pb.Pagination) ([]*pb.RestaurantInfo, error) {
 	query := `
 			SELECT id, name, address, phone_number, description
 			FROM restaurants
 			WHERE deleted_at IS NULL
-			LIMIT $1
-            OFFSET $2
             `
-	rows, err := r.DB.QueryContext(ctx, query, pag.Limit, pag.Offset)
+	count := 1
+	var params []interface{}
+	if pag.Limit > 0 {
+		query += fmt.Sprintf(" LIMIT $%d", count)
+		params = append(params, pag.Limit)
+		count++
+	}
+	if pag.Offset > 0 {
+		query += fmt.Sprintf(" OFFSET $%d", count)
+		params = append(params, pag.Offset)
+		count++
+	}
+
+	rows, err := r.DB.QueryContext(ctx, query, params...)
 	if err != nil {
 		log.Println("failed to fetch restaurants", err)
 		return nil, err
