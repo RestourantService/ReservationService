@@ -2,10 +2,19 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	pb "reservation_service/genproto/reservation"
 )
+
+type ReservationRepo struct {
+	DB *sql.DB
+}
+
+func NewReservationRepo(db *sql.DB) *ReservationRepo {
+	return &ReservationRepo{DB: db}
+}
 
 func (r *ReservationRepo) CreateReservation(ctx context.Context, reser *pb.ReservationDetails) (*pb.ID, error) {
 	query := `
