@@ -2,8 +2,10 @@ package config
 
 import (
 	"log"
+	"os"
 
-	"github.com/spf13/viper"
+	"github.com/joho/godotenv"
+	"github.com/spf13/cast"
 )
 
 type Config struct {
@@ -12,39 +14,40 @@ type Config struct {
 }
 
 type PostgresConfig struct {
-	DbHost     string
-	DbPort     string
-	DbName     string
-	DbUser     string
-	DbPassword string
+	DB_HOST     string
+	DB_PORT     string
+	DB_USER     string
+	DB_NAME     string
+	DB_PASSWORD string
 }
 
 type ServerConfig struct {
-	Host string
-	Port string
+	RESERVATION_PORT string
 }
 
-func Load(path string) Config {
-	viper.SetConfigFile(".env")
-	
-	viper.AddConfigPath("../")
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Fatal(err)
+func Load() *Config {
+	if err := godotenv.Load(".env"); err != nil {
+		log.Fatalf("error while loading .env file: %v", err)
 	}
 
-	return Config{
+	return &Config{
 		Postgres: PostgresConfig{
-			DbHost:     viper.Get("DB_HOST").(string),
-			DbPort:     viper.Get("DB_PORT").(string),
-			DbName:     viper.Get("DB_NAME").(string),
-			DbUser:     viper.Get("DB_USER").(string),
-			DbPassword: viper.Get("DB_PASSWORD").(string),
+			DB_HOST:     cast.ToString(coalesce("DB_HOST", "localhost")),
+			DB_PORT:     cast.ToString(coalesce("DB_PORT", "5432")),
+			DB_USER:     cast.ToString(coalesce("DB_USER", "postgres")),
+			DB_NAME:     cast.ToString(coalesce("DB_NAME", "reservation_service")),
+			DB_PASSWORD: cast.ToString(coalesce("DB_PASSWORD", "password")),
 		},
 		Server: ServerConfig{
-			Host: viper.Get("SERVER_HOST").(string),
-			Port: viper.Get("SERVER_PORT").(string),
+			RESERVATION_PORT: cast.ToString(coalesce("RESERVATION_PORT", ":8082")),
 		},
 	}
+}
+
+func coalesce(key string, value interface{}) interface{} {
+	val, exist := os.LookupEnv(key)
+	if exist {
+		return val
+	}
+	return value
 }
