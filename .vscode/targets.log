@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+
 # GNU Make 4.3
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Jul  8 21:23:13 2024
+# Make data base, printed on Tue Jul  9 16:48:16 2024
 
 # Variables
 
@@ -14,8 +16,6 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 GDK_BACKEND = x11
 # environment
 LC_ALL = C
-# environment
-NO_AT_BRIDGE = 1
 # environment
 GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
@@ -57,17 +57,17 @@ VSCODE_CODE_CACHE_PATH = /home/abbos/.config/Code/CachedData/dc96b837cf6bb4af9cd
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.BL86P2
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.9XSGQ2
 # default
 .LOADED := 
 # default
 .INCLUDE_DIRS = /usr/local/include /usr/include /usr/include
 # environment
-GNOME_TERMINAL_SERVICE = :1.1723
+GNOME_TERMINAL_SERVICE = :1.110
 # makefile
 MAKEFLAGS = pqrR
 # environment
-DBUS_STARTER_ADDRESS = unix:path=/run/user/1000/bus,guid=752750d544263ebd8097151e668b9e8b
+DBUS_STARTER_ADDRESS = unix:path=/run/user/1000/bus,guid=962e531341f432ffbcd3ea4d668d234c
 # makefile
 CURDIR := /home/abbos/go/src/github.com/RestourantService/ReservationService
 # environment
@@ -97,19 +97,19 @@ MAKEFILE_LIST := Makefile
 # environment
 PT8HOME = /opt/pt
 # environment
-VSCODE_PID = 70524
+VSCODE_PID = 2322
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/abbos-Aspire-A315-57G:@/tmp/.ICE-unix/1587,unix/abbos-Aspire-A315-57G:/tmp/.ICE-unix/1587
+SESSION_MANAGER = local/abbos-Aspire-A315-57G:@/tmp/.ICE-unix/1581,unix/abbos-Aspire-A315-57G:/tmp/.ICE-unix/1581
 # automatic
 *F = $(notdir $*)
 # environment
 CHROME_DESKTOP = code-url-handler.desktop
 # environment
-DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus,guid=752750d544263ebd8097151e668b9e8b
+DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus,guid=962e531341f432ffbcd3ea4d668d234c
 # automatic
 <D = $(patsubst %/,%,$(dir $<))
 # environment
@@ -127,7 +127,7 @@ XMODIFIERS = @im=ibus
 # environment
 SHLVL = 1
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/0e6deaa7_cf56_43c0_b940_9d232b155080
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/8e1c3758_a96d_4c7d_88ea_eddb7d7da011
 # environment
 MAKELEVEL := 0
 # default
@@ -137,7 +137,7 @@ PATH = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/
 # default
 MAKEFILES := 
 # makefile (from 'Makefile', line 2)
-DB_URL = postgres://postgres:pass@localhost:5432/users?sslmode=disable
+DB_URL = postgres://postgres:root@localhost:5432/users?sslmode=disable
 # environment
 LC_MONETARY = uz_UZ.UTF-8
 # automatic
@@ -175,7 +175,7 @@ GOTELEMETRY_GOPLS_CLIENT_TOKEN = 370
 # makefile
 .DEFAULT_GOAL := proto-gen
 # environment
-SYSTEMD_EXEC_PID = 1587
+SYSTEMD_EXEC_PID = 1581
 # environment
 DISPLAY = :0
 # environment
@@ -237,7 +237,7 @@ GDMSESSION = ubuntu
 # environment
 LC_IDENTIFICATION = uz_UZ.UTF-8
 # variable set hash-table stats:
-# Load=113/1024=11%, Rehash=0, Collisions=11/143=8%
+# Load=112/1024=11%, Rehash=0, Collisions=11/142=8%
 
 # Pattern-specific Variable Values
 
@@ -245,9 +245,9 @@ LC_IDENTIFICATION = uz_UZ.UTF-8
 
 # Directories
 
-# . (device 66309, inode 4457962): 16 files, no impossibilities.
+# . (device 66309, inode 4457962): 17 files, no impossibilities.
 
-# 16 files, no impossibilities in 1 directories.
+# 17 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -267,19 +267,16 @@ migrate_force:
 #  Modification time never checked.
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 17):
-	migrate -path migrations -database ${DB_URL}  -verbose force 1
+	migrate -path migrations -database ${DB_URL} -verbose force 1
 
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2024-07-08 20:53:03.539322468
+#  Last modified 2024-07-09 12:29:38.286843409
 #  File has been updated.
 #  Successfully updated.
 
 proto-gen:
- 
-make: *** No rule to make target 'all'.  Stop.
-
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -311,14 +308,14 @@ migrate_up:
 #  Modification time never checked.
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 11):
-	migrate -path migrations -database ${DB_URL}  -verbose up
+	migrate -path migrations -database ${DB_URL} -verbose up
 
 migrate_down:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 14):
-	migrate -path migrations -database ${DB_URL}  -verbose down
+	migrate -path migrations -database ${DB_URL} -verbose down
 
 # files hash-table stats:
 # Load=10/1024=1%, Rehash=0, Collisions=0/20=0%
@@ -328,12 +325,12 @@ migrate_down:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 27 / storage = 230 B / avg = 8 B
-# current buf: size = 8162 B / used = 230 B / count = 27 / avg = 8 B
+# strcache buffers: 1 (0) / strings = 28 / storage = 246 B / avg = 8 B
+# current buf: size = 8162 B / used = 246 B / count = 28 / avg = 8 B
 
-# strcache performance: lookups = 37 / hit rate = 27%
+# strcache performance: lookups = 38 / hit rate = 26%
 # hash-table stats:
-# Load=27/8192=0%, Rehash=0, Collisions=0/37=0%
-# Finished Make data base on Mon Jul  8 21:23:13 2024
+# Load=28/8192=0%, Rehash=0, Collisions=0/38=0%
+# Finished Make data base on Tue Jul  9 16:48:16 2024
 
  
