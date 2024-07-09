@@ -1,6 +1,4 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
-make: *** No rule to make target 'all'.  Stop.
-
 # GNU Make 4.3
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
@@ -8,7 +6,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Jul  9 16:48:16 2024
+# Make data base, printed on Tue Jul  9 17:50:37 2024
 
 # Variables
 
@@ -97,7 +95,7 @@ MAKEFILE_LIST := Makefile
 # environment
 PT8HOME = /opt/pt
 # environment
-VSCODE_PID = 2322
+VSCODE_PID = 30899
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -280,6 +278,9 @@ proto-gen:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
+ 
+make: *** No rule to make target 'all'.  Stop.
+
 #  recipe to execute (from 'Makefile', line 5):
 	./scripts/gen-proto.sh ${CURRENT_DIR}
 
@@ -331,6 +332,6 @@ migrate_down:
 # strcache performance: lookups = 38 / hit rate = 26%
 # hash-table stats:
 # Load=28/8192=0%, Rehash=0, Collisions=0/38=0%
-# Finished Make data base on Tue Jul  9 16:48:16 2024
+# Finished Make data base on Tue Jul  9 17:50:37 2024
 
  
