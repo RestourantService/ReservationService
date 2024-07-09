@@ -29,6 +29,16 @@ func (r *ReservationService) CreateReservation(ctx context.Context, req *pb.Rese
 		return nil, errors.Wrap(err, "failed to create reservation")
 	}
 
+	_, err = r.PaymentClient.MakePayment(ctx, &pbp.PaymentDetails{
+		ReservationId: resp.Id,
+		Amount:        0,
+		PaymentMethod: "cash",
+	})
+
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create payment")
+	}
+
 	return resp, nil
 }
 
@@ -102,5 +112,6 @@ func (r *ReservationService) FetchReservations(ctx context.Context, req *pb.Filt
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fetch reservations")
 	}
+
 	return resp, nil
 }
