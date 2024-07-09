@@ -14,7 +14,7 @@ CREATE TABLE restaurants (
 CREATE TABLE reservations (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id uuid NOT NULL,
-    restaurant_id uuid REFERENCES restaurants(id),
+    restaurant_id uuid REFERENCES restaurants(id) NOT NULL,
     reservation_time TIMESTAMP NOT NULL,
     status reservation_status NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -24,7 +24,7 @@ CREATE TABLE reservations (
 
 CREATE TABLE menu (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    restaurant_id uuid REFERENCES restaurants(id),
+    restaurant_id uuid REFERENCES restaurants(id) NOT NULL,
     name VARCHAR NOT NULL,
     description VARCHAR NOT NULL,
     price FLOAT NOT NULL,
@@ -35,8 +35,8 @@ CREATE TABLE menu (
 
 CREATE TABLE reservation_orders (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    reservation_id uuid REFERENCES reservations(id),
-    menu_item_id uuid REFERENCES menu(id),
+    reservation_id uuid REFERENCES reservations(id) NOT NULL,
+    menu_item_id uuid REFERENCES menu(id) NOT NULL,
     quantity INT NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
