@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	pb "reservation_service/genproto/restaurant"
 )
@@ -81,10 +82,21 @@ func (r *ReservationRepo) FetchRestaurants(ctx context.Context, pag *pb.Paginati
 			SELECT id, name, address, phone_number, description
 			FROM restaurants
 			WHERE deleted_at IS NULL
-			LIMIT $1
-            OFFSET $2
             `
-	rows, err := r.DB.QueryContext(ctx, query, pag.Limit, pag.Offset)
+	count := 1
+	var params []interface{}
+	if pag.Limit > 0 {
+		query += fmt.Sprintf(" LIMIT $%d", count)
+		params = append(params, pag.Limit)
+		count++
+	}
+	if pag.Offset > 0 {
+		query += fmt.Sprintf(" OFFSET $%d", count)
+		params = append(params, pag.Offset)
+		count++
+	}
+
+	rows, err := r.DB.QueryContext(ctx, query, params...)
 	if err != nil {
 		log.Println("failed to fetch restaurants", err)
 		return nil, err
