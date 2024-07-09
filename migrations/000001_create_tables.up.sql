@@ -1,7 +1,7 @@
 CREATE TYPE reservation_status as ENUM ('pending', 'cancelled', 'confirmed');
 
 CREATE TABLE restaurants (
-    id uuid PRIMARY KEY,
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR UNIQUE NOT NULL,
     address VARCHAR NOT NULL,
     phone_number VARCHAR NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE restaurants (
 );
 
 CREATE TABLE reservations (
-    id uuid PRIMARY KEY,
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id uuid NOT NULL,
     restaurant_id uuid REFERENCES restaurants(id),
     reservation_time TIMESTAMP NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE reservations (
 );
 
 CREATE TABLE menu (
-    id uuid PRIMARY KEY,
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     restaurant_id uuid REFERENCES restaurants(id),
     name VARCHAR NOT NULL,
     description VARCHAR NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE menu (
 );
 
 CREATE TABLE reservation_orders (
-    id uuid PRIMARY KEY,
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     reservation_id uuid REFERENCES reservations(id),
     menu_item_id uuid REFERENCES menu(id),
     quantity INT NOT NULL DEFAULT 1,
