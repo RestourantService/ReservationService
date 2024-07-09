@@ -35,7 +35,7 @@ func (m *MenuService) GetMealByID(ctx context.Context, req *pb.ID) (*pb.MealInfo
 
 func (m *MenuService) UpdateMeal(ctx context.Context, req *pb.MealInfo) (*pb.Void, error) {
 	err := m.Repo.UpdateMeal(ctx, req)
-    if err!= nil {
+    if err!= nil {	
         return nil, errors.Wrap(err, "failed to update menu")
     }
     return &pb.Void{}, nil
