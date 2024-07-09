@@ -18,12 +18,13 @@ func NewMenuRepo(db *sql.DB) *MenuRepo {
 
 func (r *MenuRepo) CreateMenu(ctx context.Context, req *pb.MealDetails) (*pb.ID, error) {
 	query := `
-			INSERT INTO menu(restaurant_id, name, description,price) 
-			VALUES($1, $2, $3,$4) 
+			INSERT INTO menu(restaurant_id, name, description, price) 
+			VALUES($1, $2, $3, $4) 
 			RETURNING id
 			`
 	var id string
-	err := r.DB.QueryRowContext(ctx, query, req.RestaurantId, req.Name, req.Description, req.Price).Scan(&id)
+	err := r.DB.QueryRowContext(ctx, query,
+		req.RestaurantId, req.Name, req.Description, req.Price).Scan(&id)
 	if err != nil {
 		log.Println("failed to insert reservation", err)
 		return nil, err
@@ -33,12 +34,13 @@ func (r *MenuRepo) CreateMenu(ctx context.Context, req *pb.MealDetails) (*pb.ID,
 
 func (r *MenuRepo) GetMealByID(ctx context.Context, id *pb.ID) (*pb.MealInfo, error) {
 	query := `
-			SELECT restaurant_id, name, description,price
+			SELECT restaurant_id, name, description, price
                 FROM menu
                 WHERE deleted_at is null and id = $1
 			`
 	res := pb.MealInfo{Id: id.Id}
-	err := r.DB.QueryRowContext(ctx, query, id.Id).Scan(&res.RestaurantId, &res.Name, &res.Description, &res.Price)
+	err := r.DB.QueryRowContext(ctx, query, id.Id).Scan(
+		&res.RestaurantId, &res.Name, &res.Description, &res.Price)
 	if err != nil {
 		log.Println("failed to fetch meal", err)
 		return nil, err
@@ -87,20 +89,24 @@ func (r *MenuRepo) GetAllMeals(ctx context.Context, req *pb.Filter) (*pb.Meals, 
 	if req.Offset != 0 {
 		query += fmt.Sprintf(" OFFSET %d", req.Offset)
 	}
+	
 	rows, err := r.DB.QueryContext(ctx, query)
 	if err != nil {
 		log.Println("failed to fetch meals", err)
 		return nil, err
 	}
 	defer rows.Close()
+
 	var res []*pb.MealInfo
 	for rows.Next() {
 		var in pb.MealInfo
+
 		err := rows.Scan(&in.Id, &in.RestaurantId, &in.Name, &in.Description, &in.Price)
 		if err != nil {
 			log.Println("failed to fetch meals", err)
 			return nil, err
 		}
+		
 		res = append(res, &in)
 	}
 	return &pb.Meals{Meals: res}, nil
