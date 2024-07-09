@@ -16,7 +16,7 @@ CREATE TABLE reservations (
     user_id uuid NOT NULL,
     restaurant_id uuid REFERENCES restaurants(id) NOT NULL,
     reservation_time TIMESTAMP NOT NULL,
-    status reservation_status NOT NULL,
+    status reservation_status NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
