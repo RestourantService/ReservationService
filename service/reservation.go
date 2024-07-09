@@ -37,7 +37,7 @@ func (r *ReservationService) CreateReservation(ctx context.Context, req *pb.Rese
 		return nil, errors.Wrap(err, "failed to create reservation")
 	}
 
-	_, err = r.PaymentClient.MakePayment(ctx, &pbp.PaymentDetails{
+	_, err = r.PaymentClient.CreatePayment(ctx, &pbp.PaymentDetails{
 		ReservationId: resp.Id,
 		Amount:        0,
 		PaymentMethod: "cash",
@@ -77,8 +77,8 @@ func (r *ReservationService) DeleteReservation(ctx context.Context, req *pb.ID) 
 	return &pb.Void{}, nil
 }
 
-func (r *ReservationService) ValidateReservation(ctx context.Context, req *pb.ReservationDetails) (*pb.ID, error) {
-	resp, err := r.Repo.ValidateReservation(ctx, req)
+func (r *ReservationService) ValidateReservation(ctx context.Context, req *pb.ID) (*pb.Status, error) {
+	resp, err := r.Repo.ValidateReservation(ctx, req.Id)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to validate reservation")
 	}
