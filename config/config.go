@@ -39,7 +39,7 @@ func Load() *Config {
 			DB_PASSWORD: cast.ToString(coalesce("DB_PASSWORD", "password")),
 		},
 		Server: ServerConfig{
-			RESERVATION_PORT: cast.ToString(coalesce("RESERVATION_PORT", ":8082")),
+			RESERVATION_PORT: cast.ToString(coalesce("RESERVATION_PORT", ":50052")),
 		},
 	}
 }
