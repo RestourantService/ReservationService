@@ -1,24 +1,11 @@
 package postgres
 
-import (
-	"context"
-	"log"
-	pb "reservation_service/genproto/menu"
-)
+import "database/sql"
 
-func (m ReservationRepo) AddMeal(ctx context.Context, menu *pb.MealDetails) (*pb.ID, error) {
-	
-	id := pb.ID{}
+type MenuRepo struct {
+	DB *sql.DB
+}
 
-	query := `
-			INSERT INTO menu_items(restaurant_id, name, price) 
-            VALUES($1, $2, $3) 
-            RETURNING id
-            `
-    err := m.DB.QueryRowContext(ctx, query, menu.RestaurantId, menu.Name, menu.Price).Scan(&id)
-	if err!= nil {
-        log.Println("failed to insert meal", err)
-        return nil, err
-    }
-	return &id, nil
+func NewMenuRepo(db *sql.DB) *MenuRepo {
+	return &MenuRepo{DB: db}
 }

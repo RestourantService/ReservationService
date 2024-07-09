@@ -1,4 +1,4 @@
-TRUNCATE TABLE reservation_orders;
-TRUNCATE TABLE menu;
-TRUNCATE TABLE reservations;
-TRUNCATE TABLE restaurants;
+TRUNCATE TABLE reservation_orders CASCADE;
+TRUNCATE TABLE menu CASCADE;
+TRUNCATE TABLE reservations CASCADE;
+TRUNCATE TABLE restaurants CASCADE;
