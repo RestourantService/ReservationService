@@ -89,7 +89,7 @@ func (r *MenuRepo) GetAllMeals(ctx context.Context, req *pb.Filter) (*pb.Meals, 
 	if req.Offset != 0 {
 		query += fmt.Sprintf(" OFFSET %d", req.Offset)
 	}
-	
+
 	rows, err := r.DB.QueryContext(ctx, query)
 	if err != nil {
 		log.Println("failed to fetch meals", err)
@@ -106,7 +106,7 @@ func (r *MenuRepo) GetAllMeals(ctx context.Context, req *pb.Filter) (*pb.Meals, 
 			log.Println("failed to fetch meals", err)
 			return nil, err
 		}
-		
+
 		res = append(res, &in)
 	}
 	return &pb.Meals{Meals: res}, nil
