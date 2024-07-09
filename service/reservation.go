@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	pbp "reservation_service/genproto/payment"
 	pb "reservation_service/genproto/reservation"
+	pbu "reservation_service/genproto/user"
 	"reservation_service/storage/postgres"
 
 	"github.com/pkg/errors"
@@ -13,17 +14,24 @@ import (
 type ReservationService struct {
 	pb.UnimplementedReservationServer
 	Repo          *postgres.ReservationRepo
+	UserClient    pbu.UserClient
 	PaymentClient pbp.PaymentClient
 }
 
-func NewReservationService(db *sql.DB, paymentClient pbp.PaymentClient) *ReservationService {
+func NewReservationService(db *sql.DB, user pbu.UserClient, payment pbp.PaymentClient) *ReservationService {
 	return &ReservationService{
 		Repo:          postgres.NewReservationRepo(db),
-		PaymentClient: paymentClient,
+		UserClient:    user,
+		PaymentClient: payment,
 	}
 }
 
 func (r *ReservationService) CreateReservation(ctx context.Context, req *pb.ReservationDetails) (*pb.ID, error) {
+	status, err := r.UserClient.ValidateUser(ctx, &pbu.ID{Id: req.UserId})
+	if !status.Successful || err != nil {
+		return nil, errors.Wrap(err, "no such user")
+	}
+
 	resp, err := r.Repo.CreateReservation(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create reservation")
