@@ -22,9 +22,10 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PaymentClient interface {
-	MakePayment(ctx context.Context, in *PaymentDetails, opts ...grpc.CallOption) (*Status, error)
+	CreatePayment(ctx context.Context, in *PaymentDetails, opts ...grpc.CallOption) (*Status, error)
 	GetPayment(ctx context.Context, in *ID, opts ...grpc.CallOption) (*PaymentInfo, error)
 	UpdatePayment(ctx context.Context, in *PaymentInfo, opts ...grpc.CallOption) (*Void, error)
+	SearchByReservationID(ctx context.Context, in *ID, opts ...grpc.CallOption) (*PaymentInfo, error)
 }
 
 type paymentClient struct {
@@ -35,9 +36,9 @@ func NewPaymentClient(cc grpc.ClientConnInterface) PaymentClient {
 	return &paymentClient{cc}
 }
 
-func (c *paymentClient) MakePayment(ctx context.Context, in *PaymentDetails, opts ...grpc.CallOption) (*Status, error) {
+func (c *paymentClient) CreatePayment(ctx context.Context, in *PaymentDetails, opts ...grpc.CallOption) (*Status, error) {
 	out := new(Status)
-	err := c.cc.Invoke(ctx, "/payment.Payment/MakePayment", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/payment.Payment/CreatePayment", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -62,13 +63,23 @@ func (c *paymentClient) UpdatePayment(ctx context.Context, in *PaymentInfo, opts
 	return out, nil
 }
 
+func (c *paymentClient) SearchByReservationID(ctx context.Context, in *ID, opts ...grpc.CallOption) (*PaymentInfo, error) {
+	out := new(PaymentInfo)
+	err := c.cc.Invoke(ctx, "/payment.Payment/SearchByReservationID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PaymentServer is the server API for Payment service.
 // All implementations must embed UnimplementedPaymentServer
 // for forward compatibility
 type PaymentServer interface {
-	MakePayment(context.Context, *PaymentDetails) (*Status, error)
+	CreatePayment(context.Context, *PaymentDetails) (*Status, error)
 	GetPayment(context.Context, *ID) (*PaymentInfo, error)
 	UpdatePayment(context.Context, *PaymentInfo) (*Void, error)
+	SearchByReservationID(context.Context, *ID) (*PaymentInfo, error)
 	mustEmbedUnimplementedPaymentServer()
 }
 
@@ -76,14 +87,17 @@ type PaymentServer interface {
 type UnimplementedPaymentServer struct {
 }
 
-func (UnimplementedPaymentServer) MakePayment(context.Context, *PaymentDetails) (*Status, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method MakePayment not implemented")
+func (UnimplementedPaymentServer) CreatePayment(context.Context, *PaymentDetails) (*Status, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePayment not implemented")
 }
 func (UnimplementedPaymentServer) GetPayment(context.Context, *ID) (*PaymentInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPayment not implemented")
 }
 func (UnimplementedPaymentServer) UpdatePayment(context.Context, *PaymentInfo) (*Void, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePayment not implemented")
+}
+func (UnimplementedPaymentServer) SearchByReservationID(context.Context, *ID) (*PaymentInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchByReservationID not implemented")
 }
 func (UnimplementedPaymentServer) mustEmbedUnimplementedPaymentServer() {}
 
@@ -98,20 +112,20 @@ func RegisterPaymentServer(s grpc.ServiceRegistrar, srv PaymentServer) {
 	s.RegisterService(&Payment_ServiceDesc, srv)
 }
 
-func _Payment_MakePayment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Payment_CreatePayment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PaymentDetails)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PaymentServer).MakePayment(ctx, in)
+		return srv.(PaymentServer).CreatePayment(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/payment.Payment/MakePayment",
+		FullMethod: "/payment.Payment/CreatePayment",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PaymentServer).MakePayment(ctx, req.(*PaymentDetails))
+		return srv.(PaymentServer).CreatePayment(ctx, req.(*PaymentDetails))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -152,6 +166,24 @@ func _Payment_UpdatePayment_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Payment_SearchByReservationID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PaymentServer).SearchByReservationID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/payment.Payment/SearchByReservationID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PaymentServer).SearchByReservationID(ctx, req.(*ID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Payment_ServiceDesc is the grpc.ServiceDesc for Payment service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -160,8 +192,8 @@ var Payment_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*PaymentServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "MakePayment",
-			Handler:    _Payment_MakePayment_Handler,
+			MethodName: "CreatePayment",
+			Handler:    _Payment_CreatePayment_Handler,
 		},
 		{
 			MethodName: "GetPayment",
@@ -170,6 +202,10 @@ var Payment_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdatePayment",
 			Handler:    _Payment_UpdatePayment_Handler,
+		},
+		{
+			MethodName: "SearchByReservationID",
+			Handler:    _Payment_SearchByReservationID_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

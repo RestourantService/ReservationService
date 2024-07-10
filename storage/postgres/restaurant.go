@@ -24,7 +24,7 @@ func (r *RestaurantRepo) CreateRestaurant(ctx context.Context, res *pb.Restauran
             `
 	id := pb.ID{}
 	err := r.DB.QueryRowContext(ctx, query, res.Name, res.Address,
-		res.PhoneNumber, res.Description).Scan(&id)
+		res.PhoneNumber, res.Description).Scan(&id.Id)
 	if err != nil {
 		log.Println("failed to insert restaurant", err)
 		return nil, err
@@ -51,7 +51,7 @@ func (r *RestaurantRepo) GetRestaurant(ctx context.Context, id *pb.ID) (*pb.Rest
 func (r *RestaurantRepo) UpdateRestaurant(ctx context.Context, res *pb.RestaurantInfo) error {
 	query := `
                 UPDATE restaurants
-                SET name = $1, address = $2, phone_number = $3, description = $4 updated_at = NOW()
+                SET name = $1, address = $2, phone_number = $3, description = $4, updated_at = NOW()
                 WHERE deleted_at is null and id = $5
             `
 	_, err := r.DB.ExecContext(ctx, query,

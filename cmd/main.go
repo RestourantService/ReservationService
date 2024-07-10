@@ -7,6 +7,7 @@ import (
 	pbM "reservation_service/genproto/menu"
 	pbReser "reservation_service/genproto/reservation"
 	pbRest "reservation_service/genproto/restaurant"
+	"reservation_service/pkg"
 	"reservation_service/service"
 	"reservation_service/storage/postgres"
 
@@ -27,8 +28,10 @@ func main() {
 	}
 	defer db.Close()
 
+	userClient := pkg.CreateUserClient(*cfg)
+	paymentClient := pkg.CreatePaymentClient(*cfg)
 	restaurantService := service.NewRestaurantService(db)
-	reservationService := service.NewReservationService(db)
+	reservationService := service.NewReservationService(db, userClient, paymentClient)
 	menuService := service.NewMenuService(db)
 	server := grpc.NewServer()
 	pbRest.RegisterRestaurantServer(server, restaurantService)

@@ -6,6 +6,10 @@ import (
 	"fmt"
 	"log"
 	pb "reservation_service/genproto/reservation"
+	"reservation_service/storage/redis"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type ReservationRepo struct {
@@ -84,34 +88,34 @@ func (r *ReservationRepo) DeleteReservation(ctx context.Context, id *pb.ID) erro
 	return nil
 }
 
-func (r *ReservationRepo) ValidateReservation(ctx context.Context, reser *pb.ReservationDetails) (*pb.ID, error) {
+func (r *ReservationRepo) ValidateReservation(ctx context.Context, id string) (*pb.Status, error) {
 	query := `
-	SELECT id
-	FROM reservations
-	WHERE user_id = $1 AND restaurant_id = $2 AND reservation_time = $3 and deleted_at is null
+	select
+      	case 
+        	when id = $1 then true
+      	else
+        	false
+      	end
+    from
+		reservations
+    where
+        id = $1 and deleted_at is null
 	`
-	var id string
-	err := r.DB.QueryRowContext(ctx, query,
-		reser.UserId, reser.RestaurantId, reser.ReservationTime).Scan(&id)
+	var status pb.Status
+	err := r.DB.QueryRowContext(ctx, query, id).Scan(&status.Successful)
 	if err != nil {
 		log.Println("reservation not found", err)
 		return nil, err
 	}
 
-	return &pb.ID{Id: id}, nil
+	return &status, nil
 }
 
-func (r *ReservationRepo) Order(ctx context.Context, reser *pb.ReservationOrders) (*pb.ID, error) {
-	query := `
-			insert into reservation_orders (restaurant_id, menu_item_id, quantity)
-			values ($1, $2, $3)
-			RETURNING id
-			`
-	var id string
-	err := r.DB.QueryRowContext(ctx, query,
-		reser.RestaurantId, reser.MenuItemId, reser.Quantity).Scan(&id)
+func (r *ReservationRepo) Order(ctx context.Context, reser *pb.ReservationOrders, reserEndTime time.Time) (*pb.ID, error) {
+	id := uuid.NewString()
+
+	err := redis.StoreOrders(ctx, id, reser, reserEndTime)
 	if err != nil {
-		log.Println("failed to insert order", err)
 		return nil, err
 	}
 
