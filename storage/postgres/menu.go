@@ -16,7 +16,7 @@ func NewMenuRepo(db *sql.DB) *MenuRepo {
 	return &MenuRepo{DB: db}
 }
 
-func (r *MenuRepo) CreateMenu(ctx context.Context, req *pb.MealDetails) (*pb.ID, error) {
+func (r *MenuRepo) AddMeal(ctx context.Context, req *pb.MealDetails) (*pb.ID, error) {
 	query := `
 			INSERT INTO menu(restaurant_id, name, description, price) 
 			VALUES($1, $2, $3, $4) 

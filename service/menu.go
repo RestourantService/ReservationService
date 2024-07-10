@@ -18,8 +18,8 @@ func NewMenuService(db *sql.DB) *MenuService {
 	return &MenuService{Repo: postgres.NewMenuRepo(db)}
 }
 
-func (m *MenuService) CreateMenu(ctx context.Context, req *pb.MealDetails) (*pb.ID, error) {
-	resp, err := m.Repo.CreateMenu(ctx, req)
+func (m *MenuService) AddMeal(ctx context.Context, req *pb.MealDetails) (*pb.ID, error) {
+	resp, err := m.Repo.AddMeal(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create meal")
 	}
