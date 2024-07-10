@@ -33,12 +33,13 @@ CREATE TABLE menu (
     deleted_at TIMESTAMP
 );
 
-CREATE TABLE reservation_orders (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    reservation_id uuid REFERENCES reservations(id) NOT NULL,
-    menu_item_id uuid REFERENCES menu(id) NOT NULL,
-    quantity INT NOT NULL DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP
-);
+-- Implemented in REDIS
+-- CREATE TABLE reservation_orders (
+--     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+--     reservation_id uuid REFERENCES reservations(id) NOT NULL,
+--     menu_item_id uuid REFERENCES menu(id) NOT NULL,
+--     quantity INT NOT NULL DEFAULT 1,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     deleted_at TIMESTAMP
+-- );

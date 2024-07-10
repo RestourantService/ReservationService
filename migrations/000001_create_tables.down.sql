@@ -1,4 +1,3 @@
-DROP TABLE IF EXISTS reservation_orders;
 DROP TABLE IF EXISTS menu;
 DROP TABLE IF EXISTS reservations;
 DROP TABLE IF EXISTS restaurants;

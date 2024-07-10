@@ -7,6 +7,7 @@ import (
 	pb "reservation_service/genproto/reservation"
 	pbu "reservation_service/genproto/user"
 	"reservation_service/storage/postgres"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -87,7 +88,17 @@ func (r *ReservationService) ValidateReservation(ctx context.Context, req *pb.ID
 }
 
 func (r *ReservationService) Order(ctx context.Context, req *pb.ReservationOrders) (*pb.ID, error) {
-	resp, err := r.Repo.Order(ctx, req)
+	reserInfo, err := r.Repo.GetReservationById(ctx, &pb.ID{Id: req.Id})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find reservation")
+	}
+
+	reserTime, err := time.Parse(time.RFC3339, reserInfo.ReservationTime)
+	if err != nil {
+		return nil, errors.Wrap(err, "invalid reservation time")
+	}
+
+	resp, err := r.Repo.Order(ctx, req, reserTime)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to make order")
 	}

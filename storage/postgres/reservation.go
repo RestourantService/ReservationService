@@ -6,6 +6,10 @@ import (
 	"fmt"
 	"log"
 	pb "reservation_service/genproto/reservation"
+	"reservation_service/storage/redis"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type ReservationRepo struct {
@@ -107,17 +111,11 @@ func (r *ReservationRepo) ValidateReservation(ctx context.Context, id string) (*
 	return &status, nil
 }
 
-func (r *ReservationRepo) Order(ctx context.Context, reser *pb.ReservationOrders) (*pb.ID, error) {
-	query := `
-			insert into reservation_orders (restaurant_id, menu_item_id, quantity)
-			values ($1, $2, $3)
-			RETURNING id
-			`
-	var id string
-	err := r.DB.QueryRowContext(ctx, query,
-		reser.RestaurantId, reser.MenuItemId, reser.Quantity).Scan(&id)
+func (r *ReservationRepo) Order(ctx context.Context, reser *pb.ReservationOrders, reserEndTime time.Time) (*pb.ID, error) {
+	id := uuid.NewString()
+
+	err := redis.StoreOrders(ctx, id, reser, reserEndTime)
 	if err != nil {
-		log.Println("failed to insert order", err)
 		return nil, err
 	}
 
