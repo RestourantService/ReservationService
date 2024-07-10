@@ -29,8 +29,11 @@ func NewReservationService(db *sql.DB, user pbu.UserClient, payment pbp.PaymentC
 
 func (r *ReservationService) CreateReservation(ctx context.Context, req *pb.ReservationDetails) (*pb.ID, error) {
 	status, err := r.UserClient.ValidateUser(ctx, &pbu.ID{Id: req.UserId})
-	if !status.Successful || err != nil {
-		return nil, errors.Wrap(err, "no such user")
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to validate user")
+	}
+	if !status.Successful {
+		return nil, errors.Wrap(err, "user validation failed")
 	}
 
 	resp, err := r.Repo.CreateReservation(ctx, req)
@@ -107,6 +110,14 @@ func (r *ReservationService) Order(ctx context.Context, req *pb.ReservationOrder
 }
 
 func (r *ReservationService) Pay(ctx context.Context, req *pb.ID) (*pb.Status, error) {
+	status, err := r.Repo.ValidateReservation(ctx, req.Id)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to validate reservation")
+	}
+	if !status.Successful {
+		return nil, errors.Wrap(err, "reservation validation failed")
+	}
+
 	payment, err := r.PaymentClient.SearchByReservationID(ctx, &pbp.ID{Id: req.Id})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to find payment")
