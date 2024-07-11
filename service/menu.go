@@ -26,7 +26,7 @@ func (m *MenuService) AddMeal(ctx context.Context, req *pb.MealDetails) (*pb.ID,
 
 	resp, err := m.Repo.AddMeal(ctx, req)
 	if err != nil {
-		err := errors.Wrap(err, "failed to create meal")
+		err := errors.Wrap(err, "failed to add meal")
 		m.Logger.Error(err.Error())
 		return nil, err
 	}
@@ -36,12 +36,15 @@ func (m *MenuService) AddMeal(ctx context.Context, req *pb.MealDetails) (*pb.ID,
 }
 
 func (m *MenuService) GetMealByID(ctx context.Context, req *pb.ID) (*pb.MealInfo, error) {
+	m.Logger.Info("GetMealByID method is starting")
+
 	resp, err := m.Repo.GetMealByID(ctx, req)
 	if err != nil {
 		err := errors.Wrap(err, "failed to read meal")
 		m.Logger.Error(err.Error())
 		return nil, err
 	}
+
 	m.Logger.Info("GetMealById has successfully finished")
 	return resp, nil
 }
@@ -76,9 +79,10 @@ func (m *MenuService) DeleteMeal(ctx context.Context, req *pb.ID) (*pb.Void, err
 
 func (m *MenuService) FetchMeals(ctx context.Context, req *pb.Filter) (*pb.Meals, error) {
 	m.Logger.Info("FetchMeals method is starting")
+
 	resp, err := m.Repo.GetAllMeals(ctx, req)
 	if err != nil {
-		err :=  errors.Wrap(err, "failed to fetch meals")
+		err := errors.Wrap(err, "failed to fetch meals")
 		m.Logger.Error(err.Error())
 		return nil, err
 	}
