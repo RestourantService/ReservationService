@@ -28,7 +28,7 @@ type ServerConfig struct {
 }
 
 func Load() *Config {
-	if err := godotenv.Load("storage/.env"); err != nil {
+	if err := godotenv.Load(".env"); err != nil {
 		log.Fatalf("error while loading .env file: %v", err)
 	}
 

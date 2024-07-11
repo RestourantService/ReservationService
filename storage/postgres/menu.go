@@ -68,11 +68,23 @@ func (r *MenuRepo) DeleteMeal(ctx context.Context, req *pb.ID) error {
 			SET deleted_at= NOW()
 			WHERE deleted_at is null and id = $1
 			`
-	_, err := r.DB.ExecContext(ctx, query, req.Id)
+	res, err := r.DB.ExecContext(ctx, query, req.Id)
 	if err != nil {
 		log.Println("failed to delete meal", err)
 		return err
 	}
+
+	rowAff, err := res.RowsAffected()
+	if err != nil {
+		log.Println("failed to get rows affected")
+		return err
+	}
+
+	if rowAff < 1 {
+		log.Println("meal already deleted or not found")
+		return sql.ErrNoRows
+	}
+
 	return nil
 }
 
