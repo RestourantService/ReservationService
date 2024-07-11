@@ -79,10 +79,21 @@ func (r *ReservationRepo) DeleteReservation(ctx context.Context, id *pb.ID) erro
             WHERE deleted_at is null and id = $1
             `
 
-	_, err := r.DB.ExecContext(ctx, query, id.Id)
+	res, err := r.DB.ExecContext(ctx, query, id.Id)
 	if err != nil {
 		log.Println("failed to delete reservation", err)
 		return err
+	}
+
+	rowAff, err := res.RowsAffected()
+	if err != nil {
+		log.Println("failed to get rows affected")
+		return err
+	}
+
+	if rowAff < 1 {
+		log.Println("reservation already deleted or not found")
+		return sql.ErrNoRows
 	}
 
 	return nil
@@ -90,17 +101,12 @@ func (r *ReservationRepo) DeleteReservation(ctx context.Context, id *pb.ID) erro
 
 func (r *ReservationRepo) ValidateReservation(ctx context.Context, id string) (*pb.Status, error) {
 	query := `
-	select
-      	case 
-        	when id = $1 then true
-      	else
-        	false
-      	end
-    from
-		reservations
-    where
-        id = $1 and deleted_at is null
-	`
+	select EXISTS (
+		select 1
+		from reservations
+		where id = $1 AND deleted_at IS NULL
+	)`
+	
 	var status pb.Status
 	err := r.DB.QueryRowContext(ctx, query, id).Scan(&status.Successful)
 	if err != nil {
@@ -120,6 +126,15 @@ func (r *ReservationRepo) Order(ctx context.Context, reser *pb.ReservationOrders
 	}
 
 	return &pb.ID{Id: id}, nil
+}
+
+func (r *ReservationRepo) GetOrder(ctx context.Context, id string) (map[string]string, error) {
+	order, err := redis.GetOrders(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return order, nil
 }
 
 func (r *ReservationRepo) ChangeStatus(ctx context.Context, id, status string) error {

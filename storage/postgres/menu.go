@@ -68,29 +68,46 @@ func (r *MenuRepo) DeleteMeal(ctx context.Context, req *pb.ID) error {
 			SET deleted_at= NOW()
 			WHERE deleted_at is null and id = $1
 			`
-	_, err := r.DB.ExecContext(ctx, query, req.Id)
+	res, err := r.DB.ExecContext(ctx, query, req.Id)
 	if err != nil {
 		log.Println("failed to delete meal", err)
 		return err
 	}
+
+	rowAff, err := res.RowsAffected()
+	if err != nil {
+		log.Println("failed to get rows affected")
+		return err
+	}
+
+	if rowAff < 1 {
+		log.Println("meal already deleted or not found")
+		return sql.ErrNoRows
+	}
+
 	return nil
 }
 
 func (r *MenuRepo) GetAllMeals(ctx context.Context, req *pb.Filter) (*pb.Meals, error) {
-	query := `SELECT id,restaurant_id, name, description,price
+	query := `SELECT id, restaurant_id, name, description, price
 			from menu
 	    	where deleted_at is null `
+	
+	var params []interface{}
 	if req.RestaurantId != "" {
-		query += fmt.Sprintf(" and restaurant_id = %s", req.RestaurantId)
+		query += fmt.Sprintf(" and restaurant_id = $%d", len(params)+1)
+		params = append(params, req.RestaurantId)
 	}
-	if req.Limit != 0 {
-		query += fmt.Sprintf(" LIMIT %d", req.Limit)
+	if req.Limit > 0 {
+		query += fmt.Sprintf(" LIMIT $%d", len(params)+1)
+		params = append(params, req.Limit)
 	}
-	if req.Offset != 0 {
-		query += fmt.Sprintf(" OFFSET %d", req.Offset)
+	if req.Offset > 0 {
+		query += fmt.Sprintf(" OFFSET $%d", len(params)+1)
+		params = append(params, req.Offset)
 	}
-
-	rows, err := r.DB.QueryContext(ctx, query)
+	
+	rows, err := r.DB.QueryContext(ctx, query, params...)
 	if err != nil {
 		log.Println("failed to fetch meals", err)
 		return nil, err

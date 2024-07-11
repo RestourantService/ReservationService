@@ -69,11 +69,23 @@ func (r *RestaurantRepo) DeleteRestaurant(ctx context.Context, id *pb.ID) error 
 			SET deleted_at = NOW()
 			WHERE deleted_at is null and id = $1
             `
-	_, err := r.DB.ExecContext(ctx, query, id.Id)
+	res, err := r.DB.ExecContext(ctx, query, id.Id)
 	if err != nil {
 		log.Println("failed to delete", err)
 		return err
 	}
+
+	rowAff, err := res.RowsAffected()
+	if err != nil {
+		log.Println("failed to get rows affected")
+		return err
+	}
+
+	if rowAff < 1 {
+		log.Println("restaurant already deleted or not found")
+		return sql.ErrNoRows
+	}
+
 	return nil
 }
 

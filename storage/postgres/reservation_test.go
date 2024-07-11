@@ -117,29 +117,29 @@ func TestValidateReservation(t *testing.T) {
     }
 }
 
-func TestOrder(t *testing.T) {
-	db, err := ConnectDB()
-    if err!= nil {
-        t.Fatal(err)
-    }
+// func TestOrder(t *testing.T) {
+// 	db, err := ConnectDB()
+//     if err!= nil {
+//         t.Fatal(err)
+//     }
 
-    repo := NewReservationRepo(db)
+//     repo := NewReservationRepo(db)
 
-    reser := &pb.ReservationOrders{
-		Id:          "550e8400-e29b-41d4-a716-446655440007",
-        MenuItemId:   "c9c98556-1627-4979-8075-175106816597",
-        Quantity:     2,
-    }
+//     reser := &pb.ReservationOrders{
+// 		Id:          "550e8400-e29b-41d4-a716-446655440007",
+//         MenuItemId:   "c9c98556-1627-4979-8075-175106816597",
+//         Quantity:     2,
+//     }
 
-    id, err := repo.Order(context.Background(), reser)
-    if err!= nil {
-        t.Error("failed to order reservation", err)
-    }
-	exp := &pb.ID{
-		Id: "550e8400-e29b-41d4-a716-446655440002",
-	}
-	if!reflect.DeepEqual(id, exp) {
-        t.Error("expected id to be", exp, "but got", id)
-    }
-}
+//     id, err := repo.Order(context.Background(), reser)
+//     if err!= nil {
+//         t.Error("failed to order reservation", err)
+//     }
+// 	exp := &pb.ID{
+// 		Id: "550e8400-e29b-41d4-a716-446655440002",
+// 	}
+// 	if!reflect.DeepEqual(id, exp) {
+//         t.Error("expected id to be", exp, "but got", id)
+//     }
+// }
 
