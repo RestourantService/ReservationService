@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"log"
 	pb "reservation_service/genproto/restaurant"
 	"reservation_service/storage/postgres"
 
@@ -56,6 +57,7 @@ func (r *RestaurantService) DeleteRestaurant(ctx context.Context, req *pb.ID) (*
 
 func (r *RestaurantService) FetchRestaurants(ctx context.Context, req *pb.Pagination) (*pb.Restaurants, error) {
 	resp, err := r.Repo.FetchRestaurants(ctx, req)
+	log.Print(resp)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fetch restaurants")
 	}

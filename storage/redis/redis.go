@@ -25,8 +25,7 @@ func StoreOrders(ctx context.Context, id string, reser *pb.ReservationOrders, re
 	orderID := "reservation_order:" + id
 	order := map[string]interface{}{
 		"reservation_id": reser.Id,
-		"menu_item_id":   reser.MenuItemId,
-		"quantity":       reser.Quantity,
+		"order": reser.Order,
 	}
 
 	for k, v := range order {
