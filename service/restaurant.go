@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"log/slog"
 	pb "reservation_service/genproto/restaurant"
+	"reservation_service/pkg/logger"
 	"reservation_service/storage/postgres"
 
 	"github.com/pkg/errors"
@@ -12,11 +14,15 @@ import (
 
 type RestaurantService struct {
 	pb.UnimplementedRestaurantServer
-	Repo *postgres.RestaurantRepo
+	Repo   *postgres.RestaurantRepo
+	Logger *slog.Logger
 }
 
 func NewRestaurantService(db *sql.DB) *RestaurantService {
-	return &RestaurantService{Repo: postgres.NewRestaurantRepo(db)}
+	return &RestaurantService{
+		Repo:   postgres.NewRestaurantRepo(db),
+		Logger: logger.NewLogger(),
+	}
 }
 
 func (r *RestaurantService) CreateRestaurant(ctx context.Context, req *pb.RestaurantDetails) (*pb.ID, error) {
