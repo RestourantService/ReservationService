@@ -3,9 +3,11 @@ package service
 import (
 	"context"
 	"database/sql"
+	"log/slog"
 	pbp "reservation_service/genproto/payment"
 	pb "reservation_service/genproto/reservation"
 	pbu "reservation_service/genproto/user"
+	"reservation_service/pkg/logger"
 	"reservation_service/storage/postgres"
 	"time"
 
@@ -17,6 +19,7 @@ type ReservationService struct {
 	Repo          *postgres.ReservationRepo
 	UserClient    pbu.UserClient
 	PaymentClient pbp.PaymentClient
+	Logger *slog.Logger
 }
 
 func NewReservationService(db *sql.DB, user pbu.UserClient, payment pbp.PaymentClient) *ReservationService {
@@ -24,22 +27,35 @@ func NewReservationService(db *sql.DB, user pbu.UserClient, payment pbp.PaymentC
 		Repo:          postgres.NewReservationRepo(db),
 		UserClient:    user,
 		PaymentClient: payment,
+		Logger: logger.NewLogger(),
 	}
 }
 
 func (r *ReservationService) CreateReservation(ctx context.Context, req *pb.ReservationDetails) (*pb.ID, error) {
+	r.Logger.Info("CreateReservation method is starting")
+
 	status, err := r.UserClient.ValidateUser(ctx, &pbu.ID{Id: req.UserId})
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to validate user")
+		err := errors.Wrap(err, "failed to validate user")
+		r.Logger.Error(err.Error())
+		return nil, err
 	}
 	if !status.Successful {
-		return nil, errors.Wrap(err, "user validation failed")
+		err := errors.Wrap(err, "user validation failed")
+		r.Logger.Error(err.Error())
+		return nil, err
 	}
+
+	r.Logger.Info("User has been validated")
 
 	resp, err := r.Repo.CreateReservation(ctx, req)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create reservation")
+		err := errors.Wrap(err, "failed to create reservation")
+		r.Logger.Error(err.Error())
+		return nil, err
 	}
+
+	r.Logger.Info("Reservation has been created")
 
 	_, err = r.PaymentClient.CreatePayment(ctx, &pbp.PaymentDetails{
 		ReservationId: resp.Id,
@@ -48,18 +64,26 @@ func (r *ReservationService) CreateReservation(ctx context.Context, req *pb.Rese
 	})
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create payment")
+		err := errors.Wrap(err, "failed to create payment")
+		r.Logger.Error(err.Error())
+		return nil, err
 	}
 
+	r.Logger.Info("CreateReservation has successfully finished")
 	return resp, nil
 }
 
 func (r *ReservationService) GetReservationByID(ctx context.Context, req *pb.ID) (*pb.ReservationInfo, error) {
+	r.Logger.Info("GetReservationByID method is starting")
+	
 	resp, err := r.Repo.GetReservationById(ctx, req)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to read reservation")
+		err := errors.Wrap(err, "failed to read reservation")
+		r.Logger.Error(err.Error())
+		return nil, err
 	}
 
+	r.Logger.Info("GetReservationByID has successfully finished")
 	return resp, nil
 }
 
