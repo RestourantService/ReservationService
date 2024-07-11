@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"database/sql"
-	"log"
 	"log/slog"
 	pb "reservation_service/genproto/restaurant"
 	"reservation_service/pkg/logger"
@@ -26,47 +25,71 @@ func NewRestaurantService(db *sql.DB) *RestaurantService {
 }
 
 func (r *RestaurantService) CreateRestaurant(ctx context.Context, req *pb.RestaurantDetails) (*pb.ID, error) {
+	r.Logger.Info("CreateRestaurant method is starting")
+
 	resp, err := r.Repo.CreateRestaurant(ctx, req)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create restaurant")
+		err := errors.Wrap(err, "failed to create restaurant")
+		r.Logger.Error(err.Error())
+		return nil, err
 	}
 
+	r.Logger.Info("CreateRestaurant has successfully finished")
 	return resp, nil
 }
 
 func (r *RestaurantService) GetRestaurantByID(ctx context.Context, req *pb.ID) (*pb.RestaurantInfo, error) {
+	r.Logger.Info("GetRestaurantByID method is starting")
+
 	resp, err := r.Repo.GetRestaurant(ctx, req)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to read restaurant")
+		err := errors.Wrap(err, "failed to read restaurant")
+		r.Logger.Error(err.Error())
+		return nil, err
 	}
 
+	r.Logger.Info("GetRestaurantByID has successfully finished")
 	return resp, nil
 }
 
 func (r *RestaurantService) UpdateRestaurant(ctx context.Context, req *pb.RestaurantInfo) (*pb.Void, error) {
+	r.Logger.Info("UpdateRestaurant method is starting")
+
 	err := r.Repo.UpdateRestaurant(ctx, req)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to update restaurant")
+		err := errors.Wrap(err, "failed to update restaurant")
+		r.Logger.Error(err.Error())
+		return nil, err
 	}
 
+	r.Logger.Info("UpdateRestaurant has successfully finished")
 	return &pb.Void{}, nil
 }
 
 func (r *RestaurantService) DeleteRestaurant(ctx context.Context, req *pb.ID) (*pb.Void, error) {
+	r.Logger.Info("DeleteRestaurant method is starting")
+
 	err := r.Repo.DeleteRestaurant(ctx, req)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to update restaurant")
+		err := errors.Wrap(err, "failed to update restaurant")
+		r.Logger.Error(err.Error())
+		return nil, err
 	}
 
+	r.Logger.Info("DeleteRestaurant has successfully finished")
 	return &pb.Void{}, nil
 }
 
 func (r *RestaurantService) FetchRestaurants(ctx context.Context, req *pb.Pagination) (*pb.Restaurants, error) {
+	r.Logger.Info("FetchRestaurants method is starting")
+
 	resp, err := r.Repo.FetchRestaurants(ctx, req)
-	log.Print(resp)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to fetch restaurants")
+		err := errors.Wrap(err, "failed to fetch restaurants")
+		r.Logger.Error(err.Error())
+		return nil, err
 	}
 
+	r.Logger.Info("FetchRestaurants has successfully finished")
 	return &pb.Restaurants{Restaurants: resp}, nil
 }
