@@ -90,17 +90,12 @@ func (r *ReservationRepo) DeleteReservation(ctx context.Context, id *pb.ID) erro
 
 func (r *ReservationRepo) ValidateReservation(ctx context.Context, id string) (*pb.Status, error) {
 	query := `
-	select
-      	case 
-        	when id = $1 then true
-      	else
-        	false
-      	end
-    from
-		reservations
-    where
-        id = $1 and deleted_at is null
-	`
+	select EXISTS (
+		select 1
+		from reservations
+		where id = $1 AND deleted_at IS NULL
+	)`
+	
 	var status pb.Status
 	err := r.DB.QueryRowContext(ctx, query, id).Scan(&status.Successful)
 	if err != nil {
