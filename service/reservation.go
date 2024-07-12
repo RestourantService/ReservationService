@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"log/slog"
+	"reservation_service/genproto/menu"
 	pbp "reservation_service/genproto/payment"
 	pb "reservation_service/genproto/reservation"
 	pbu "reservation_service/genproto/user"
@@ -51,20 +52,6 @@ func (r *ReservationService) CreateReservation(ctx context.Context, req *pb.Rese
 	resp, err := r.Repo.CreateReservation(ctx, req)
 	if err != nil {
 		err := errors.Wrap(err, "failed to create reservation")
-		r.Logger.Error(err.Error())
-		return nil, err
-	}
-
-	r.Logger.Info("Reservation has been created")
-
-	_, err = r.PaymentClient.CreatePayment(ctx, &pbp.PaymentDetails{
-		ReservationId: resp.Id,
-		Amount:        0,
-		PaymentMethod: "cash",
-	})
-
-	if err != nil {
-		err := errors.Wrap(err, "failed to create payment")
 		r.Logger.Error(err.Error())
 		return nil, err
 	}
@@ -153,6 +140,31 @@ func (r *ReservationService) Order(ctx context.Context, req *pb.ReservationOrder
 	resp, err := r.Repo.Order(ctx, req, reserTime)
 	if err != nil {
 		err := errors.Wrap(err, "failed to make order")
+		r.Logger.Error(err.Error())
+		return nil, err
+	}
+
+	var sum float32
+	m := MenuService{}
+	for _, v := range req.Order {
+		meal, err := m.Repo.GetMealByID(ctx, &menu.ID{Id: v.MenuItemId})
+		if err != nil {
+			err := errors.Wrap(err, "failed to find meal")
+			r.Logger.Error(err.Error())
+			return nil, err
+		}
+
+		sum += meal.Price
+	}
+
+	_, err = r.PaymentClient.CreatePayment(ctx, &pbp.PaymentDetails{
+		ReservationId: req.Id,
+		Amount:        sum,
+		PaymentMethod: "cash",
+	})
+
+	if err != nil {
+		err := errors.Wrap(err, "failed to create payment")
 		r.Logger.Error(err.Error())
 		return nil, err
 	}
