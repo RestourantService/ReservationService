@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"log/slog"
 	pb "reservation_service/genproto/menu"
+	"reservation_service/pkg/logger"
 	"reservation_service/storage/postgres"
 
 	"github.com/pkg/errors"
@@ -17,7 +18,10 @@ type MenuService struct {
 }
 
 func NewMenuService(db *sql.DB) *MenuService {
-	return &MenuService{Repo: postgres.NewMenuRepo(db)}
+	return &MenuService{
+		Repo:   postgres.NewMenuRepo(db),
+		Logger: logger.NewLogger(),
+	}
 
 }
 
