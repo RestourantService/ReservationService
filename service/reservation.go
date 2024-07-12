@@ -142,7 +142,7 @@ func (r *ReservationService) Order(ctx context.Context, req *pb.ReservationOrder
 
 	r.Logger.Info("Reservation info has been retrieved")
 
-	if reserInfo.Status != "completed" {
+	if reserInfo.Status != "confirmed" {
 		err := errors.New("failed: incomplete reservation")
 		r.Logger.Error(err.Error())
 		return nil, err
