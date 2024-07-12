@@ -54,11 +54,23 @@ func (r *MenuRepo) UpdateMeal(ctx context.Context, req *pb.MealInfo) error {
 			SET restaurant_id = $1, name = $2, description = $3, price = $4, updated_at = NOW()
 			WHERE deleted_at is null and id = $5
 			`
-	_, err := r.DB.ExecContext(ctx, query, req.RestaurantId, req.Name, req.Description, req.Price, req.Id)
+	result, err := r.DB.ExecContext(ctx, query, req.RestaurantId, req.Name, req.Description, req.Price, req.Id)
 	if err != nil {
 		log.Println("failed to update meal", err)
 		return err
 	}
+
+	count, err := result.RowsAffected()
+	if err != nil {
+		log.Println("failed to check rows affected")
+		return err
+	}
+
+	if count == 0 {
+		log.Println("meal not found")
+		return sql.ErrNoRows
+	}
+
 	return nil
 }
 
@@ -92,7 +104,7 @@ func (r *MenuRepo) GetAllMeals(ctx context.Context, req *pb.Filter) (*pb.Meals, 
 	query := `SELECT id, restaurant_id, name, description, price
 			from menu
 	    	where deleted_at is null `
-	
+
 	var params []interface{}
 	if req.RestaurantId != "" {
 		query += fmt.Sprintf(" and restaurant_id = $%d", len(params)+1)
@@ -106,7 +118,7 @@ func (r *MenuRepo) GetAllMeals(ctx context.Context, req *pb.Filter) (*pb.Meals, 
 		query += fmt.Sprintf(" OFFSET $%d", len(params)+1)
 		params = append(params, req.Offset)
 	}
-	
+
 	rows, err := r.DB.QueryContext(ctx, query, params...)
 	if err != nil {
 		log.Println("failed to fetch meals", err)

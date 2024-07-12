@@ -62,11 +62,22 @@ func (r *ReservationRepo) UpdateReservation(ctx context.Context, reser *pb.Reser
 			WHERE deleted_at is null and id = $5
 			`
 
-	_, err := r.DB.ExecContext(ctx, query,
+	result, err := r.DB.ExecContext(ctx, query,
 		reser.UserId, reser.RestaurantId, reser.ReservationTime, reser.Status, reser.Id)
 	if err != nil {
 		log.Println("failed to update reservation", err)
 		return err
+	}
+
+	count, err := result.RowsAffected()
+	if err != nil {
+		log.Println("failed to check rows affected")
+		return err
+	}
+
+	if count == 0 {
+		log.Println("reservation not found")
+		return sql.ErrNoRows
 	}
 
 	return nil

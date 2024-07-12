@@ -54,12 +54,24 @@ func (r *RestaurantRepo) UpdateRestaurant(ctx context.Context, res *pb.Restauran
                 SET name = $1, address = $2, phone_number = $3, description = $4, updated_at = NOW()
                 WHERE deleted_at is null and id = $5
             `
-	_, err := r.DB.ExecContext(ctx, query,
+	result, err := r.DB.ExecContext(ctx, query,
 		res.Name, res.Address, res.PhoneNumber, res.Description, res.Id)
 	if err != nil {
 		log.Println("failed to update restaurant", err)
 		return err
 	}
+
+	count, err := result.RowsAffected()
+	if err != nil {
+		log.Println("failed to check rows affected")
+		return err
+	}
+
+	if count == 0 {
+		log.Println("restaurant not found")
+		return sql.ErrNoRows
+	}
+
 	return nil
 }
 

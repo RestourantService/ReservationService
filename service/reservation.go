@@ -37,7 +37,7 @@ func (r *ReservationService) CreateReservation(ctx context.Context, req *pb.Rese
 
 	status, err := r.UserClient.ValidateUser(ctx, &pbu.ID{Id: req.UserId})
 	if err != nil {
-		err := errors.Wrap(err, "failed to validate user")
+		err := errors.Wrap(err, "user validation failed")
 		r.Logger.Error(err.Error())
 		return nil, err
 	}
