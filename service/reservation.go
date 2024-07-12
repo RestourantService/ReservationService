@@ -107,7 +107,7 @@ func (r *ReservationService) DeleteReservation(ctx context.Context, req *pb.ID) 
 
 	err := r.Repo.DeleteReservation(ctx, req)
 	if err != nil {
-		err := errors.Wrap(err, "failed to update reservation")
+		err := errors.Wrap(err, "failed to delete reservation")
 		r.Logger.Error(err.Error())
 		return nil, err
 	}
@@ -244,4 +244,18 @@ func (r *ReservationService) FetchReservations(ctx context.Context, req *pb.Filt
 
 	r.Logger.Info("FetchReservations has successfully finished")
 	return resp, nil
+}
+
+func (r *ReservationService) DeleteReservationByUserID(ctx context.Context, req *pb.ID) (*pb.Status, error) {
+	r.Logger.Info("DeleteReservationByUserID method is starting")
+
+	err := r.Repo.DeleteReservationByUserID(ctx, req)
+	if err != nil {
+		err := errors.Wrap(err, "failed to delete reservations by user ID")
+		r.Logger.Error(err.Error())
+		return nil, err
+	}
+
+	r.Logger.Info("DeleteReservationByUserID has successfully finished")
+	return &pb.Status{Successful: true}, nil
 }

@@ -10,3 +10,5 @@ time=2024-07-12T14:20:24.162+05:00 level=INFO msg="ValidateReservation method is
 time=2024-07-12T14:20:24.162+05:00 level=INFO msg="ValidateReservation has successfully finished"
 time=2024-07-12T14:20:44.971+05:00 level=INFO msg="ValidateReservation method is starting"
 time=2024-07-12T14:20:44.972+05:00 level=INFO msg="ValidateReservation has successfully finished"
+time=2024-07-12T15:07:12.934+05:00 level=INFO msg="DeleteReservationByUserID method is starting"
+time=2024-07-12T15:07:12.938+05:00 level=INFO msg="DeleteReservationByUserID has successfully finished"

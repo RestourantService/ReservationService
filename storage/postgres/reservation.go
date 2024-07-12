@@ -106,7 +106,7 @@ func (r *ReservationRepo) ValidateReservation(ctx context.Context, id string) (*
 		from reservations
 		where id = $1 AND deleted_at IS NULL
 	)`
-	
+
 	var status pb.Status
 	err := r.DB.QueryRowContext(ctx, query, id).Scan(&status.Successful)
 	if err != nil {
@@ -200,4 +200,31 @@ func (r *ReservationRepo) FetchReservations(ctx context.Context, f *pb.Filter) (
 	}
 
 	return &pb.Reservations{Reservations: reservations}, nil
+}
+
+func (r *ReservationRepo) DeleteReservationByUserID(ctx context.Context, id *pb.ID) error {
+	query := `
+            UPDATE reservations
+            SET deleted_at = NOW()
+            WHERE deleted_at is null and user_id = $1
+            `
+
+	res, err := r.DB.ExecContext(ctx, query, id.Id)
+	if err != nil {
+		log.Println("failed to delete reservations of user", err)
+		return err
+	}
+
+	rowAff, err := res.RowsAffected()
+	if err != nil {
+		log.Println("failed to get rows affected")
+		return err
+	}
+
+	if rowAff < 1 {
+		log.Println("user reservations not found")
+		return sql.ErrNoRows
+	}
+
+	return nil
 }
