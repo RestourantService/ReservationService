@@ -142,6 +142,12 @@ func (r *ReservationService) Order(ctx context.Context, req *pb.ReservationOrder
 
 	r.Logger.Info("Reservation info has been retrieved")
 
+	if reserInfo.Status != "completed" {
+		err := errors.New("failed: incomplete reservation")
+		r.Logger.Error(err.Error())
+		return nil, err
+	}
+
 	reserTime, err := time.Parse(time.RFC3339, reserInfo.ReservationTime)
 	if err != nil {
 		err := errors.Wrap(err, "invalid reservation time")
