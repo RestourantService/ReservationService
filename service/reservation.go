@@ -77,7 +77,21 @@ func (r *ReservationService) GetReservationByID(ctx context.Context, req *pb.ID)
 func (r *ReservationService) UpdateReservation(ctx context.Context, req *pb.ReservationInfo) (*pb.Void, error) {
 	r.Logger.Info("UpdateReservation method is starting")
 
-	err := r.Repo.UpdateReservation(ctx, req)
+	status, err := r.UserClient.ValidateUser(ctx, &pbu.ID{Id: req.UserId})
+	if err != nil {
+		err := errors.Wrap(err, "failed to validate user")
+		r.Logger.Error(err.Error())
+		return nil, err
+	}
+	if !status.Successful {
+		err := errors.Wrap(err, "user validation failed")
+		r.Logger.Error(err.Error())
+		return nil, err
+	}
+
+	r.Logger.Info("User has been validated")
+
+	err = r.Repo.UpdateReservation(ctx, req)
 	if err != nil {
 		err := errors.Wrap(err, "failed to update reservation")
 		r.Logger.Error(err.Error())
