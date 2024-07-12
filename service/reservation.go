@@ -130,7 +130,7 @@ func (r *ReservationService) ValidateReservation(ctx context.Context, req *pb.ID
 	return resp, nil
 }
 
-func (r *ReservationService) Order(ctx context.Context, req *pb.ReservationOrders) (*pb.ID, error) {
+func (r *ReservationService) Order(ctx context.Context, req *pb.ReservationOrder) (*pb.ID, error) {
 	r.Logger.Info("Order method is starting")
 
 	reserInfo, err := r.Repo.GetReservationById(ctx, &pb.ID{Id: req.Id})
@@ -158,22 +158,17 @@ func (r *ReservationService) Order(ctx context.Context, req *pb.ReservationOrder
 		return nil, err
 	}
 
-	var sum float32
 	m := MenuService{}
-	for _, v := range req.Order {
-		meal, err := m.Repo.GetMealByID(ctx, &menu.ID{Id: v.MenuItemId})
-		if err != nil {
-			err := errors.Wrap(err, "failed to find meal")
-			r.Logger.Error(err.Error())
-			return nil, err
-		}
-
-		sum += meal.Price
+	meal, err := m.Repo.GetMealByID(ctx, &menu.ID{Id: req.MenuItemId})
+	if err != nil {
+		err := errors.Wrap(err, "failed to find meal")
+		r.Logger.Error(err.Error())
+		return nil, err
 	}
 
 	_, err = r.PaymentClient.CreatePayment(ctx, &pbp.PaymentDetails{
 		ReservationId: req.Id,
-		Amount:        sum,
+		Amount:        meal.Price,
 		PaymentMethod: "cash",
 	})
 

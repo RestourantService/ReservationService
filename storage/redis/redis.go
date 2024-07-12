@@ -19,13 +19,14 @@ func ConnectDB() *redis.Client {
 	return rdb
 }
 
-func StoreOrders(ctx context.Context, id string, reser *pb.ReservationOrders, reservationEndTime time.Time) error {
+func StoreOrders(ctx context.Context, id string, reser *pb.ReservationOrder, reservationEndTime time.Time) error {
 	rdb := ConnectDB()
 
 	orderID := "reservation_order:" + id
 	order := map[string]interface{}{
 		"reservation_id": reser.Id,
-		"order":          reser.Order,
+		"menu_item_id":   reser.MenuItemId,
+		"quantity":       reser.Quantity,
 	}
 
 	for k, v := range order {

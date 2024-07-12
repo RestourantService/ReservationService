@@ -128,7 +128,7 @@ func (r *ReservationRepo) ValidateReservation(ctx context.Context, id string) (*
 	return &status, nil
 }
 
-func (r *ReservationRepo) Order(ctx context.Context, reser *pb.ReservationOrders, reserEndTime time.Time) (*pb.ID, error) {
+func (r *ReservationRepo) Order(ctx context.Context, reser *pb.ReservationOrder, reserEndTime time.Time) (*pb.ID, error) {
 	id := uuid.NewString()
 
 	err := redis.StoreOrders(ctx, id, reser, reserEndTime)
